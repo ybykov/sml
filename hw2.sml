@@ -23,18 +23,28 @@ fun get_substitutions1(sl: string list list, s: string) =
        [] => []
      | x::xs'=> (case all_except_option(s, x) of
                      NONE => []
-                   | SOME xs => xs) @ get_substitution1(xs', s)
+                   | SOME xs => xs) @ get_substitutions1(xs', s)
 
 fun get_substitutions2(sl: string list list, s: string) =
-let fun helper(s1: string list list, s: string, acc) = 
+let fun helper(sl: string list list, s: string, acc: string list) = 
   case sl of
-       [] => []
-     | x::xs'=> helper(xs', s, (case all_except_option(s, x) of
+       [] => acc 
+     | x::xs'=> helper(xs', s, ((case all_except_option(s, x) of
                                      NONE => []
-                                   | SOME xs => xs) @ acc)
+                                   | SOME xs => xs) @ acc))
 in
   helper(sl, s, [])
 end
+
+fun similar_names(sl: string list list, {first: string, last: string, middle: string}) =
+  let val alternative_names = get_substitutions2(sl, first) @ [first]
+      fun construct(an: string list, acc) = 
+        case an of
+          [] => acc
+        | x::xs => construct(xs, {first = x, last = last, middle = middle} :: acc)
+  in
+    construct(alternative_names, [])
+  end
 
       (* put your solutions for problem 1 here *)
 
